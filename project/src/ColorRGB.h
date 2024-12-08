@@ -1,5 +1,7 @@
 #pragma once
 #include "MathHelpers.h"
+#include <algorithm>
+#define NOMINMAX
 
 namespace dae
 {
@@ -11,7 +13,7 @@ namespace dae
 
 		void MaxToOne()
 		{
-			const float maxValue = std::max(r, std::max(g, b));
+			const float maxValue = (std::max)(r, (std::max)(g, b));
 			if (maxValue > 1.f)
 				*this /= maxValue;
 		}

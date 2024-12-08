@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Mesh.h"
 struct SDL_Window;
 struct SDL_Surface;
 
