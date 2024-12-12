@@ -84,9 +84,9 @@ namespace dae
 
 	Mesh::~Mesh()
 	{
-		m_pInputLayout->Release();
-		m_pIndexBuffer->Release();
 		m_pVertexBuffer->Release();
+		m_pIndexBuffer->Release();
+		m_pInputLayout->Release();
 	}
 
 	void Mesh::Render(ID3D11DeviceContext* pDeviceContext)

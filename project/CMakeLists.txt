@@ -10,7 +10,7 @@ set(SOURCES
     "src/Vector4.cpp"
     "src/Effect.cpp" 
     "src/Mesh.cpp" 
-    "src/DataTypes.h")
+    "src/DataTypes.h" "src/Camera.h")
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})

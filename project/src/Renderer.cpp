@@ -25,6 +25,16 @@ namespace dae {
 		{
 			std::cout << "DirectX initialization failed!\n";
 		}
+
+		std::vector<Vertex> vertices{
+			{{0.0f, 0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}
+		};
+
+		std::vector<uint32_t> indices{ 0, 1, 2 };
+
+		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices);
 	}
 
 	Renderer::~Renderer()
@@ -64,17 +74,7 @@ namespace dae {
 
 		// Actually render
 
-		std::vector<Vertex> vertices{
-			{{0.0f, 0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}
-		};
-
-		std::vector<uint32_t> indices{ 0, 1, 2 };
-
-		auto mesh = Mesh(m_pDevice, vertices, indices);
-
-		mesh.Render(m_pDeviceContext);
+		m_Mesh->Render(m_pDeviceContext);
 
 		// Present backbuffer
 		m_pSwapChain->Present(0, 0);
