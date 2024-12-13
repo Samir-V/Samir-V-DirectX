@@ -5,15 +5,19 @@
 #include "Effect.h"
 #include "Matrix.h"
 #include "Camera.h"
+#include "Texture.h"
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::string& texturePath)
 	{
 		m_pEffect = std::make_unique<Effect>(pDevice, L"resources/PosCol3D.fx");
 
+		m_pTexture = Texture::LoadFromFile(texturePath, pDevice);
+		m_pEffect->SetDiffuseMap(m_pTexture.get());
+
 		// Vertex Layout
-		static constexpr uint32_t numElements{ 2 };
+		static constexpr uint32_t numElements{ 3 };
 		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 		vertexDesc[0].SemanticName = "Position";
@@ -25,6 +29,11 @@ namespace dae
 		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vertexDesc[1].AlignedByteOffset = 12;
 		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[2].SemanticName = "TEXCOORD";
+		vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+		vertexDesc[2].AlignedByteOffset = 24;
+		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 		// Input Layout
 		D3DX11_PASS_DESC passDesc{};
@@ -112,7 +121,7 @@ namespace dae
 
 		Matrix view = camera->GetViewMatrix();
 		Matrix proj = camera->GetProjectionMatrix();
-		const Matrix worldViewProjectionMatrix = view * proj;
+		const Matrix worldViewProjectionMatrix = WorldMatrix * view * proj;
 
 		m_pEffect->GetMatrix()->SetMatrix(reinterpret_cast<const float*>(&worldViewProjectionMatrix));
 
@@ -120,7 +129,11 @@ namespace dae
 
 		pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		// 6. Draw
+		// 6. Generate Mips
+
+		// pDeviceContext->GenerateMips(m_pTexture->GetSRV());
+
+		// 7. Draw
 
 		D3DX11_TECHNIQUE_DESC techDesc{};
 		m_pEffect->GetTechnique()->GetDesc(&techDesc);
@@ -130,6 +143,11 @@ namespace dae
 			m_pEffect->GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
 			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 		}
+	}
+
+	void Mesh::CycleTechniques() const
+	{
+		m_pEffect->CycleTechniques();
 	}
 
 

@@ -3,6 +3,11 @@
 
 #include "d3dx11effect.h"
 
+namespace dae
+{
+	class Texture;
+}
+
 class Effect final
 {
 public:
@@ -16,9 +21,26 @@ public:
 	ID3DX11EffectTechnique* GetTechnique() const;
 	ID3DX11EffectMatrixVariable* GetMatrix() const;
 
+	void SetDiffuseMap(const dae::Texture* pDiffuseTexture) const;
+	void CycleTechniques();
+
+	enum class TechniqueMode
+	{
+		Point,
+		Linear,
+		Anisotropic
+	};
+
 private:
 
 	ID3DX11Effect* m_pEffect;
-	ID3DX11EffectTechnique* m_pTechnique;
+	ID3DX11EffectTechnique* m_pActiveTechnique;
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable;
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
+
+	ID3DX11EffectTechnique* m_PointTechnique;
+	ID3DX11EffectTechnique* m_LinearTechnique;
+	ID3DX11EffectTechnique* m_AnisotropicTechnique;
+
+	TechniqueMode m_TechniqueMode;
 };

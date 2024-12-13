@@ -21,6 +21,10 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 
+		void CycleTechniques() const;
+
+		float yaw;
+
 	private:
 		SDL_Window* m_pWindow{};
 

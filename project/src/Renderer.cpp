@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
+#include "Utils.h"
 
 #include <dxgi.h>
 #include <d3d11.h>
@@ -28,19 +29,40 @@ namespace dae {
 
 		m_Camera = std::make_unique<Camera>();
 
-		m_Camera->Initialize(45.0f, { 0, 0, -10.0f });
+		m_Camera->Initialize(45.0f, { 0, 0, -50.0f });
 
 		m_Camera->aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
-		std::vector<Vertex> vertices{
-			{{0.0f, 3.0f, 2.0f}, {1.0f, 0.0f, 0.0f}},
-			{{3.0f, -3.0f, 2.0f}, {0.0f, 0.0f, 1.0f}},
-			{{-3.0f, -3.0f, 2.0f}, {0.0f, 1.0f, 0.0f}}
+		/*std::vector<Vertex> vertices
+		{
+			Vertex{{-3,3,-2},{colors::White},{0,0}},
+				Vertex{{0,3,-2},{colors::White},{0.5f,0}},
+				Vertex{{3,3,-2},{colors::White},{1,0}},
+				Vertex{{-3,0,-2},{colors::White},{0,.5f}},
+				Vertex{{0,0,-2},{colors::White},{.5f,.5f}},
+				Vertex{{3,0,-2},{colors::White},{1,.5f}},
+				Vertex{{-3,-3,-2},{colors::White},{0,1}},
+				Vertex{{0,-3,-2},{colors::White},{.5f,1}},
+				Vertex{{3,-3,-2},{colors::White},{1,1}}
+		};*/
+
+		/*std::vector<uint32_t> indices
+		{	3,0,1, 1,4,3, 4,1,2,
+			2,5,4, 6,3,4, 4,7,6,
+			7,4,5, 5,8,7
+		};*/
+
+		std::vector<Vertex> vertices
+		{
 		};
 
-		std::vector<uint32_t> indices{ 0, 1, 2 };
+		std::vector<uint32_t> indices
+		{ 
+		};
 
-		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices);
+		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+
+		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices, "resources/vehicle_diffuse.png");
 	}
 
 	Renderer::~Renderer()
@@ -64,6 +86,10 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_Camera->Update(pTimer);
+
+		yaw = PI_DIV_2 * pTimer->GetElapsed();
+		const Matrix rotationMatrix = Matrix::CreateRotationY(yaw);
+		m_Mesh->WorldMatrix *= rotationMatrix;
 	}
 
 
@@ -212,4 +238,10 @@ namespace dae {
 
 		return S_OK;
 	}
+
+	void Renderer::CycleTechniques() const
+	{
+		m_Mesh->CycleTechniques();
+	}
+
 }
