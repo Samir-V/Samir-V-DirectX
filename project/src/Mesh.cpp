@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "Effect.h"
+#include "Matrix.h"
+#include "Camera.h"
 
 namespace dae
 {
@@ -89,7 +91,7 @@ namespace dae
 		m_pInputLayout->Release();
 	}
 
-	void Mesh::Render(ID3D11DeviceContext* pDeviceContext)
+	void Mesh::Render(ID3D11DeviceContext* pDeviceContext, Camera* camera)
 	{
 		// 1. Topology
 
@@ -106,11 +108,19 @@ namespace dae
 
 		pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
 
-		// 4. Set Index Buffer
+		// 4. Set the matrix
+
+		Matrix view = camera->GetViewMatrix();
+		Matrix proj = camera->GetProjectionMatrix();
+		const Matrix worldViewProjectionMatrix = view * proj;
+
+		m_pEffect->GetMatrix()->SetMatrix(reinterpret_cast<const float*>(&worldViewProjectionMatrix));
+
+		// 5. Set Index Buffer
 
 		pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		// 5. Draw
+		// 6. Draw
 
 		D3DX11_TECHNIQUE_DESC techDesc{};
 		m_pEffect->GetTechnique()->GetDesc(&techDesc);

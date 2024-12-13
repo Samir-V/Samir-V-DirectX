@@ -26,10 +26,16 @@ namespace dae {
 			std::cout << "DirectX initialization failed!\n";
 		}
 
+		m_Camera = std::make_unique<Camera>();
+
+		m_Camera->Initialize(45.0f, { 0, 0, -10.0f });
+
+		m_Camera->aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+
 		std::vector<Vertex> vertices{
-			{{0.0f, 0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}
+			{{0.0f, 3.0f, 2.0f}, {1.0f, 0.0f, 0.0f}},
+			{{3.0f, -3.0f, 2.0f}, {0.0f, 0.0f, 1.0f}},
+			{{-3.0f, -3.0f, 2.0f}, {0.0f, 1.0f, 0.0f}}
 		};
 
 		std::vector<uint32_t> indices{ 0, 1, 2 };
@@ -57,7 +63,7 @@ namespace dae {
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_Camera->Update(pTimer);
 	}
 
 
@@ -74,7 +80,7 @@ namespace dae {
 
 		// Actually render
 
-		m_Mesh->Render(m_pDeviceContext);
+		m_Mesh->Render(m_pDeviceContext, m_Camera.get());
 
 		// Present backbuffer
 		m_pSwapChain->Present(0, 0);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
+#include "Camera.h"
 struct SDL_Window;
 struct SDL_Surface;
 
@@ -27,6 +28,8 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+
+		std::unique_ptr<Camera> m_Camera;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();
