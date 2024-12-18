@@ -9,15 +9,22 @@
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::string& texturePath)
+	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossinessMapPath)
 	{
 		m_pEffect = std::make_unique<Effect>(pDevice, L"resources/PosCol3D.fx");
 
-		m_pTexture = Texture::LoadFromFile(texturePath, pDevice);
-		m_pEffect->SetDiffuseMap(m_pTexture.get());
+		m_pDiffuseMap = Texture::LoadFromFile(diffuseMapPath, pDevice);
+		m_pNormalMap = Texture::LoadFromFile(normalMapPath, pDevice);
+		m_pSpecularMap = Texture::LoadFromFile(specularMapPath, pDevice);
+		m_pGlossinessMap = Texture::LoadFromFile(glossinessMapPath, pDevice);
+
+		m_pEffect->SetDiffuseMap(m_pDiffuseMap.get());
+		m_pEffect->SetNormalMap(m_pNormalMap.get());
+		m_pEffect->SetSpecularMap(m_pSpecularMap.get());
+		m_pEffect->SetGlossinessMap(m_pGlossinessMap.get());
 
 		// Vertex Layout
-		static constexpr uint32_t numElements{ 3 };
+		static constexpr uint32_t numElements{ 4 };
 		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 		vertexDesc[0].SemanticName = "Position";
@@ -25,15 +32,21 @@ namespace dae
 		vertexDesc[0].AlignedByteOffset = 0;
 		vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-		vertexDesc[1].SemanticName = "Color";
-		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[1].SemanticName = "TEXCOORD";
+		vertexDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 		vertexDesc[1].AlignedByteOffset = 12;
 		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-		vertexDesc[2].SemanticName = "TEXCOORD";
-		vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-		vertexDesc[2].AlignedByteOffset = 24;
+		vertexDesc[2].SemanticName = "Normal";
+		vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[2].AlignedByteOffset = 20;
 		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[3].SemanticName = "Tangent";
+		vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[3].AlignedByteOffset = 32;
+		vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
 
 		// Input Layout
 		D3DX11_PASS_DESC passDesc{};
@@ -49,7 +62,7 @@ namespace dae
 
 		if (FAILED(result1))
 		{
-			std::wcout << L"Step 1 failed \n";
+			std::wcout << L"Input Layout failure \n";
 			return;
 		}
 
@@ -69,7 +82,7 @@ namespace dae
 
 		if (FAILED(result2))
 		{
-			std::wcout << L"Step 2 failed \n";
+			std::wcout << L"Vertex buffer failure \n";
 			return;
 		}
 
@@ -88,7 +101,7 @@ namespace dae
 
 		if (FAILED(result3))
 		{
-			std::wcout << L"Step 3 failed \n";
+			std::wcout << L"Index buffer failure \n";
 			return;
 		}
 	}
@@ -131,7 +144,7 @@ namespace dae
 
 		// 6. Generate Mips
 
-		// pDeviceContext->GenerateMips(m_pTexture->GetSRV());
+		//pDeviceContext->GenerateMips(m_pTexture->GetSRV());
 
 		// 7. Draw
 
@@ -149,7 +162,4 @@ namespace dae
 	{
 		m_pEffect->CycleTechniques();
 	}
-
-
-
 }

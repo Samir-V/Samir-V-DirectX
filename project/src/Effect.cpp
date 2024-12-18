@@ -42,7 +42,21 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 
 	if (!m_pMatWorldViewProjVariable->IsValid())
 	{
-		std::wcout << L"Matrix not valid\n";
+		std::wcout << L"WVP Matrix not valid\n";
+	}
+
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+
+	if (!m_pMatWorldVariable->IsValid())
+	{
+		std::wcout << L"World Matrix not valid\n";
+	}
+
+	m_pCameraPositionVariable = m_pEffect->GetVariableByName("gCameraPosition")->AsVector();
+
+	if (!m_pCameraPositionVariable->IsValid())
+	{
+		std::wcout << L"Camera Pos not valid\n";
 	}
 
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
@@ -51,11 +65,37 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	{
 		std::wcout << L"DiffuseMap variable not valid\n";
 	}
+
+	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
+
+	if (!m_pNormalMapVariable->IsValid())
+	{
+		std::wcout << L"NormalMap variable not valid\n";
+	}
+
+	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
+
+	if (!m_pSpecularMapVariable->IsValid())
+	{
+		std::wcout << L"SpecularMap variable not valid\n";
+	}
+
+	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
+
+	if (!m_pGlossinessMapVariable->IsValid())
+	{
+		std::wcout << L"GlossinessMap variable not valid\n";
+	}
 }
 
 Effect::~Effect()
 {
+	m_pGlossinessMapVariable->Release();
+	m_pSpecularMapVariable->Release();
+	m_pNormalMapVariable->Release();
 	m_pDiffuseMapVariable->Release();
+	m_pCameraPositionVariable->Release();
+	m_pMatWorldVariable->Release();
 	m_pMatWorldViewProjVariable->Release();
 	//m_pActiveTechnique->Release();
 	m_AnisotropicTechnique->Release();
@@ -72,10 +112,65 @@ void Effect::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
 
 		if (FAILED(result))
 		{
-			std::wcout << L"Setting the resource failed\n";
+			std::wcout << L"Setting the diffuse resource failed\n";
 		}
 	}
 }
+
+void Effect::SetNormalMap(const dae::Texture* pNormalMapTexture) const
+{
+	if (m_pNormalMapVariable)
+	{
+		const HRESULT result = m_pNormalMapVariable->SetResource(pNormalMapTexture->GetSRV());
+
+		if (FAILED(result))
+		{
+			std::wcout << L"Setting the normal resource failed\n";
+		}
+	}
+}
+
+void Effect::SetSpecularMap(const dae::Texture* pSpecularMapTexture) const
+{
+	if (m_pSpecularMapVariable)
+	{
+		const HRESULT result = m_pSpecularMapVariable->SetResource(pSpecularMapTexture->GetSRV());
+
+		if (FAILED(result))
+		{
+			std::wcout << L"Setting the specular resource failed\n";
+		}
+	}
+}
+
+void Effect::SetGlossinessMap(const dae::Texture* pGlossMapTexture) const
+{
+	if (m_pGlossinessMapVariable)
+	{
+		const HRESULT result = m_pGlossinessMapVariable->SetResource(pGlossMapTexture->GetSRV());
+
+		if (FAILED(result))
+		{
+			std::wcout << L"Setting the glossiness resource failed\n";
+		}
+	}
+}
+
+// Rewrite to getter, call it in renderer actually
+
+//void Effect::SetCameraPos(const dae::Vector3& cameraPos) const
+//{
+//	if (m_pCameraPositionVariable)
+//	{
+//		const HRESULT result = m_pCameraPositionVariable->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&cameraPos));
+//
+//		if (FAILED(result))
+//		{
+//			std::wcout << L"Setting the camera position variable failed\n";
+//		}
+//	}
+//}
+
 
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)

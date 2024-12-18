@@ -2,20 +2,33 @@
 struct VS_INPUT
 {
 	float3 Position : POSITION;
-	float3 Color : COLOR;
 	float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 struct VS_OUTPUT
 {
 	float4 Position : SV_POSITION;
-	float3 Color : COLOR;
 	float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 float4x4 gWorldViewProj : WorldViewProjection;
 
 Texture2D gDiffuseMap : DiffuseMap;
+Texture2D gNormalMap : NormalMap;
+Texture2D gSpecularMap : SpecularMap;
+Texture2D gGlossinessMap : GlossinessMap;
+
+const float3 gLightDirection = float3(0.577f, -0.577f, 0.577f);
+const float gLightIntensity = float(7.0f);
+const float gShininess = float(25.0f);
+const float gPI = float(3.1415926f);
+
+float4x4 gWorldMatrix : WORLD;
+float3 gCameraPosition : CAMERA;
 
 SamplerState samPoint
 {
@@ -43,8 +56,10 @@ VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
 	output.Position = mul(float4(input.Position,1.0f), gWorldViewProj);
-	output.Color = input.Color;
+    //output.Color = 0; //input.Color;
 	output.UV = input.UV;
+    output.Normal = mul(normalize(input.Normal), (float3x3)gWorldMatrix);
+    output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldMatrix);
 	return output;
 }
 
@@ -57,19 +72,19 @@ float4 SampleTexture(VS_OUTPUT input, SamplerState samplerState)
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
 	float4 texColor = SampleTexture(input, samPoint);
-	return texColor * float4(input.Color, 1.0f);
+    return texColor;
 }
 
 float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 {
 	float4 texColor = SampleTexture(input, samLinear);
-	return texColor * float4(input.Color, 1.0f);
+    return texColor;
 }
 
 float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
 {
 	float4 texColor = SampleTexture(input, samAnisotropic);
-	return texColor * float4(input.Color, 1.0f);
+    return texColor;
 }
 
 technique11 PointTechnique

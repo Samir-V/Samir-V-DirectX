@@ -16,7 +16,7 @@ namespace dae
 				return false;
 
 			std::vector<Vector3> positions{};
-			//std::vector<Vector3> normals{};
+			std::vector<Vector3> normals{};
 			std::vector<Vector2> UVs{};
 
 			vertices.clear();
@@ -54,7 +54,7 @@ namespace dae
 					float x, y, z;
 					file >> x >> y >> z;
 
-					//normals.emplace_back(x, y, z);
+					normals.emplace_back(x, y, z);
 				}
 				else if (sCommand == "f")
 				{
@@ -91,7 +91,7 @@ namespace dae
 
 								// Optional vertex normal
 								file >> iNormal;
-								//vertex.normal = normals[iNormal - 1];
+								vertex.normal = normals[iNormal - 1];
 							}
 						}
 
@@ -137,21 +137,21 @@ namespace dae
 				float r = 1.f / Vector2::Cross(diffX, diffY);
 
 				Vector3 tangent = (edge0 * diffY.y - edge1 * diffY.x) * r;
-				//vertices[index0].tangent += tangent;
-				//vertices[index1].tangent += tangent;
-				//vertices[index2].tangent += tangent;
+				vertices[index0].tangent += tangent;
+				vertices[index1].tangent += tangent;
+				vertices[index2].tangent += tangent;
 			}
 
 			//Create the Tangents (reject)
 			for (auto& v : vertices)
 			{
-				//v.tangent = Vector3::Reject(v.tangent, v.normal).Normalized();
+				v.tangent = Vector3::Reject(v.tangent, v.normal).Normalized();
 
 				if(flipAxisAndWinding)
 				{
 					v.position.z *= -1.f;
-					//v.normal.z *= -1.f;
-					//v.tangent.z *= -1.f;
+					v.normal.z *= -1.f;
+					v.tangent.z *= -1.f;
 				}
 
 			}

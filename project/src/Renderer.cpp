@@ -62,7 +62,11 @@ namespace dae {
 
 		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
 
-		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices, "resources/vehicle_diffuse.png");
+		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices, 
+			"resources/vehicle_diffuse.png",
+			"resources/vehicle_normal.png",
+			"resources/vehicle_specular.png",
+			"resources/vehicle_gloss.png");
 	}
 
 	Renderer::~Renderer()
