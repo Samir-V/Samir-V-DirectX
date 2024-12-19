@@ -31,6 +31,25 @@ static const float PI = float(3.1415926f);
 float4x4 gWorldMatrix : WORLD;
 float3 gCameraPosition : CAMERA;
 
+RasterizerState gRasterizerState
+{
+	Cullmode = back;
+	FrontCounterClockwise = false;
+};
+
+BlendState gBlendState
+{
+	BlendEnable[0] = false;
+};
+
+DepthStencilState gDepthStencilState
+{
+	DepthEnable = true;
+    DepthWriteMask = all;
+    DepthFunc = less;
+    StencilEnable = false;
+};
+
 SamplerState samPoint
 {
     Filter = MIN_MAG_MIP_Point;
@@ -164,6 +183,9 @@ technique11 PointTechnique
 {
     pass P0
     {
+		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
+		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Point()));
@@ -174,6 +196,9 @@ technique11 LinearTechnique
 {
     pass P0
     {
+		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
+		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
@@ -184,6 +209,9 @@ technique11 AnisotropicTechnique
 {
     pass P0
     {
+		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
+		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(NULL);
         SetPixelShader(CompileShader(ps_5_0, PS_Anisotropic()));

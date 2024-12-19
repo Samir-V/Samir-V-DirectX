@@ -112,7 +112,7 @@ namespace dae {
 	{
 		m_Camera->Update(pTimer);
 
-		yaw = PI_DIV_2 * pTimer->GetElapsed();
+		yaw = PI_DIV_4 * pTimer->GetElapsed();
 		const Matrix rotationMatrix = Matrix::CreateRotationY(yaw);
 		m_Mesh->WorldMatrix *= rotationMatrix;
 		m_FireMesh->WorldMatrix *= rotationMatrix;

@@ -35,6 +35,14 @@ BlendState gBlendState
 	RenderTargetWriteMask[0] = 0x0F;
 };
 
+DepthStencilState gDepthStencilState
+{
+	DepthEnable = true;
+	DepthWriteMask = zero;
+	DepthFunc = less;
+	StencilEnable = false;
+};
+
 SamplerState samPointDefault
 {
     Filter = MIN_MAG_MIP_Point;
@@ -67,6 +75,7 @@ technique11 DefaultTechnique
 	pass P0
 	{
 		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
 		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 		SetVertexShader( CompileShader( vs_5_0, VS() ) );
 		SetGeometryShader( NULL );

@@ -140,7 +140,7 @@ namespace dae
 
 		pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
 
-		// 4. Set the matrix
+		// 4. Set the matrices and camera pos
 
 		Matrix view = camera->GetViewMatrix();
 		Matrix proj = camera->GetProjectionMatrix();
