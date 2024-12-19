@@ -8,9 +8,9 @@ set(SOURCES
 	"src/Vector2.cpp"
     "src/Vector3.cpp"
     "src/Vector4.cpp"
-    "src/Effect.cpp" 
+    "src/MainMeshEffect.cpp" 
     "src/Mesh.cpp" 
-    "src/DataTypes.h" "src/Camera.h" "src/Texture.cpp")
+    "src/DataTypes.h" "src/Camera.h" "src/Texture.cpp" "src/EffectBase.cpp" "src/FireMeshEffect.cpp")
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})

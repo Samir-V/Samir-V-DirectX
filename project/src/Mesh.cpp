@@ -2,26 +2,37 @@
 
 #include <iostream>
 
-#include "Effect.h"
+#include "MainMeshEffect.h"
 #include "Matrix.h"
 #include "Camera.h"
 #include "Texture.h"
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossinessMapPath)
+	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, std::unique_ptr<EffectBase> effect, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossinessMapPath)
 	{
-		m_pEffect = std::make_unique<Effect>(pDevice, L"resources/PosCol3D.fx");
+		m_pEffect = std::move(effect);
 
 		m_pDiffuseMap = Texture::LoadFromFile(diffuseMapPath, pDevice);
-		m_pNormalMap = Texture::LoadFromFile(normalMapPath, pDevice);
-		m_pSpecularMap = Texture::LoadFromFile(specularMapPath, pDevice);
-		m_pGlossinessMap = Texture::LoadFromFile(glossinessMapPath, pDevice);
-
 		m_pEffect->SetDiffuseMap(m_pDiffuseMap.get());
-		m_pEffect->SetNormalMap(m_pNormalMap.get());
-		m_pEffect->SetSpecularMap(m_pSpecularMap.get());
-		m_pEffect->SetGlossinessMap(m_pGlossinessMap.get());
+
+		if (!normalMapPath.empty())
+		{
+			m_pNormalMap = Texture::LoadFromFile(normalMapPath, pDevice);
+			m_pEffect->SetNormalMap(m_pNormalMap.get());
+		}
+
+		if (!specularMapPath.empty())
+		{
+			m_pSpecularMap = Texture::LoadFromFile(specularMapPath, pDevice);
+			m_pEffect->SetSpecularMap(m_pSpecularMap.get());
+		}
+
+		if (!glossinessMapPath.empty())
+		{
+			m_pGlossinessMap = Texture::LoadFromFile(glossinessMapPath, pDevice);
+			m_pEffect->SetGlossinessMap(m_pGlossinessMap.get());
+		}
 
 		// Vertex Layout
 		static constexpr uint32_t numElements{ 4 };
@@ -46,7 +57,6 @@ namespace dae
 		vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vertexDesc[3].AlignedByteOffset = 32;
 		vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
 
 		// Input Layout
 		D3DX11_PASS_DESC passDesc{};
@@ -136,7 +146,7 @@ namespace dae
 		Matrix proj = camera->GetProjectionMatrix();
 		const Matrix worldViewProjectionMatrix = WorldMatrix * view * proj;
 
-		m_pEffect->GetMatrix()->SetMatrix(reinterpret_cast<const float*>(&worldViewProjectionMatrix));
+		m_pEffect->UpdateEffect(worldViewProjectionMatrix, WorldMatrix, camera->origin);
 
 		// 5. Set Index Buffer
 

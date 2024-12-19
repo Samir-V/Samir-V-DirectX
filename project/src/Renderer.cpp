@@ -7,6 +7,8 @@
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
+#include "FireMeshEffect.h"
+
 namespace dae {
 
 	Renderer::Renderer(SDL_Window* pWindow) :
@@ -52,21 +54,40 @@ namespace dae {
 			7,4,5, 5,8,7
 		};*/
 
-		std::vector<Vertex> vertices
+		std::vector<Vertex> verticesMesh
 		{
 		};
 
-		std::vector<uint32_t> indices
+		std::vector<uint32_t> indicesMesh
 		{ 
 		};
 
-		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+		std::vector<Vertex> verticesFireMesh
+		{
+		};
 
-		m_Mesh = std::make_unique<Mesh>(m_pDevice, vertices, indices, 
+		std::vector<uint32_t> indicesFireMesh
+		{
+		};
+
+		Utils::ParseOBJ("resources/vehicle.obj", verticesMesh, indicesMesh);
+
+		std::unique_ptr<EffectBase> mainMeshEffect = std::make_unique<MainMeshEffect>(m_pDevice, L"resources/PosCol3D.fx");
+
+		m_Mesh = std::make_unique<Mesh>(m_pDevice, verticesMesh, indicesMesh,
+			std::move(mainMeshEffect),
 			"resources/vehicle_diffuse.png",
 			"resources/vehicle_normal.png",
 			"resources/vehicle_specular.png",
 			"resources/vehicle_gloss.png");
+
+
+		Utils::ParseOBJ("resources/fireFX.obj", verticesFireMesh, indicesFireMesh);
+
+		std::unique_ptr<EffectBase> fireMeshEffect = std::make_unique<FireMeshEffect>(m_pDevice, L"resources/Fire3D.fx");
+
+		m_FireMesh = std::make_unique<Mesh>(m_pDevice, verticesFireMesh, indicesFireMesh,
+			std::move(fireMeshEffect), "resources/fireFX_diffuse.png");
 	}
 
 	Renderer::~Renderer()
@@ -94,6 +115,7 @@ namespace dae {
 		yaw = PI_DIV_2 * pTimer->GetElapsed();
 		const Matrix rotationMatrix = Matrix::CreateRotationY(yaw);
 		m_Mesh->WorldMatrix *= rotationMatrix;
+		m_FireMesh->WorldMatrix *= rotationMatrix;
 	}
 
 
@@ -111,6 +133,7 @@ namespace dae {
 		// Actually render
 
 		m_Mesh->Render(m_pDeviceContext, m_Camera.get());
+		m_FireMesh->Render(m_pDeviceContext, m_Camera.get());
 
 		// Present backbuffer
 		m_pSwapChain->Present(0, 0);

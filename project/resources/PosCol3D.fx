@@ -10,6 +10,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
 	float4 Position : SV_POSITION;
+    float4 WorldPosition : WORLD;
 	float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
@@ -22,10 +23,10 @@ Texture2D gNormalMap : NormalMap;
 Texture2D gSpecularMap : SpecularMap;
 Texture2D gGlossinessMap : GlossinessMap;
 
-const float3 gLightDirection = float3(0.577f, -0.577f, 0.577f);
-const float gLightIntensity = float(7.0f);
-const float gShininess = float(25.0f);
-const float gPI = float(3.1415926f);
+static const float3 LightDirection = float3(0.577f, -0.577f, 0.577f);
+static const float LightIntensity = float(7.0f);
+static const float Shininess = float(25.0f);
+static const float PI = float(3.1415926f);
 
 float4x4 gWorldMatrix : WORLD;
 float3 gCameraPosition : CAMERA;
@@ -55,36 +56,108 @@ SamplerState samAnisotropic
 VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.Position = mul(float4(input.Position,1.0f), gWorldViewProj);
-    //output.Color = 0; //input.Color;
+	output.Position = mul(float4(input.Position, 1.0f), gWorldViewProj);
+    output.WorldPosition = mul(float4(input.Position, 1.0f), gWorldMatrix);
 	output.UV = input.UV;
     output.Normal = mul(normalize(input.Normal), (float3x3)gWorldMatrix);
     output.Tangent = mul(normalize(input.Tangent), (float3x3) gWorldMatrix);
 	return output;
 }
 
-float4 SampleTexture(VS_OUTPUT input, SamplerState samplerState) 
-{
-    return gDiffuseMap.Sample(samplerState, input.UV);
+float4 SampleTexture(VS_OUTPUT input, Texture2D textureToSample, SamplerState samplerState) 
+{   
+    return textureToSample.Sample(samplerState, input.UV);
 }
 
 
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
-	float4 texColor = SampleTexture(input, samPoint);
-    return texColor;
+	float3 binormal = cross(input.Normal, input.Tangent);
+	float3x3 tangentToWorldMatrix = float3x3(
+        input.Tangent,
+        binormal,
+        input.Normal
+    );
+	
+	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samPoint).rgb);
+	float3 sampledNormal = 2.0f * normalMapColour - float3(1.0f, 1.0f, 1.0f);
+	float3 finalNormal = normalize(mul(sampledNormal, tangentToWorldMatrix));
+
+    float glossiness = saturate(SampleTexture(input, gGlossinessMap, samPoint).r) * Shininess;
+
+    float4 specularColor = saturate(SampleTexture(input, gSpecularMap, samPoint));
+
+    float4 lambertDiffuse = (LightIntensity * saturate(SampleTexture(input, gDiffuseMap, samPoint))) / PI;
+    float observedArea = max(dot(finalNormal, -LightDirection), 0.0f);
+
+    float3 invViewDirection = normalize(gCameraPosition - input.WorldPosition.xyz);
+    float3 refResult = reflect(LightDirection, finalNormal);
+    float angle = max(dot(refResult, invViewDirection), 0.0f);
+    float powRes = pow(angle, glossiness);
+
+    float specReflection = 0.5f * (powRes);
+    
+    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
 }
 
 float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 {
-	float4 texColor = SampleTexture(input, samLinear);
-    return texColor;
+	float3 binormal = cross(input.Normal, input.Tangent);
+	float3x3 tangentToWorldMatrix = float3x3(
+        input.Tangent,
+        binormal,
+        input.Normal
+    );
+	
+	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samLinear).rgb);
+	float3 sampledNormal = 2.0f * normalMapColour - float3(1.0f, 1.0f, 1.0f);
+	float3 finalNormal = normalize(mul(sampledNormal, tangentToWorldMatrix));
+
+    float glossiness = saturate(SampleTexture(input, gGlossinessMap, samLinear).r) * Shininess;
+
+    float4 specularColor = saturate(SampleTexture(input, gSpecularMap, samLinear));
+
+    float4 lambertDiffuse = (LightIntensity * saturate(SampleTexture(input, gDiffuseMap, samLinear))) / PI;
+    float observedArea = max(dot(finalNormal, -LightDirection), 0.0f);
+
+    float3 invViewDirection = normalize(gCameraPosition - input.WorldPosition.xyz);
+    float3 refResult = reflect(LightDirection, finalNormal);
+    float angle = max(dot(refResult, invViewDirection), 0.0f);
+    float powRes = pow(angle, glossiness);
+
+    float specReflection = 0.5f * (powRes);
+    
+    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
 }
 
 float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
 {
-	float4 texColor = SampleTexture(input, samAnisotropic);
-    return texColor;
+	float3 binormal = cross(input.Normal, input.Tangent);
+	float3x3 tangentToWorldMatrix = float3x3(
+        input.Tangent,
+        binormal,
+        input.Normal
+    );
+	
+	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samAnisotropic).rgb);
+	float3 sampledNormal = 2.0f * normalMapColour - float3(1.0f, 1.0f, 1.0f);
+	float3 finalNormal = normalize(mul(sampledNormal, tangentToWorldMatrix));
+
+    float glossiness = saturate(SampleTexture(input, gGlossinessMap, samAnisotropic).r) * Shininess;
+
+    float4 specularColor = saturate(SampleTexture(input, gSpecularMap, samAnisotropic));
+
+    float4 lambertDiffuse = (LightIntensity * saturate(SampleTexture(input, gDiffuseMap, samAnisotropic))) / PI;
+    float observedArea = max(dot(finalNormal, -LightDirection), 0.0f);
+
+    float3 invViewDirection = normalize(gCameraPosition - input.WorldPosition.xyz);
+    float3 refResult = reflect(LightDirection, finalNormal);
+    float angle = max(dot(refResult, invViewDirection), 0.0f);
+    float powRes = pow(angle, glossiness);
+
+    float specReflection = 0.5f * (powRes);
+    
+    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
 }
 
 technique11 PointTechnique

@@ -2,36 +2,35 @@
 #include <string>
 
 #include "d3dx11effect.h"
+#include "EffectBase.h"
 
 namespace dae
 {
 	struct Vector3;
-}
-
-namespace dae
-{
 	class Texture;
 }
 
-class Effect final
+class MainMeshEffect final : public EffectBase
 {
 public:
 
-	Effect(ID3D11Device* pDevice, const std::wstring& assetFile);
-	~Effect();
-
-	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
+	MainMeshEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
+	~MainMeshEffect() override;
 
 	ID3DX11Effect* GetEffect() const;
-	ID3DX11EffectTechnique* GetTechnique() const;
-	ID3DX11EffectMatrixVariable* GetMatrix() const;
+	ID3DX11EffectTechnique* GetTechnique() const override;
+	ID3DX11EffectMatrixVariable* GetWVPMatrix() const;
+	ID3DX11EffectMatrixVariable* GetWorldMatrix() const;
 
-	void SetDiffuseMap(const dae::Texture* pDiffuseTexture) const;
-	void SetNormalMap(const dae::Texture* pNormalMapTexture) const;
-	void SetSpecularMap(const dae::Texture* pSpecularMapTexture) const;
-	void SetGlossinessMap(const dae::Texture* pGlossMapTexture) const;
-	void SetCameraPos(const dae::Vector3& cameraPos) const;
-	void CycleTechniques();
+	ID3DX11EffectVariable* GetCameraPos() const;
+
+	void SetDiffuseMap(const dae::Texture* pDiffuseTexture) const override;
+	void SetNormalMap(const dae::Texture* pNormalMapTexture) const override;
+	void SetSpecularMap(const dae::Texture* pSpecularMapTexture) const override;
+	void SetGlossinessMap(const dae::Texture* pGlossMapTexture) const override;
+	void CycleTechniques() override;
+
+	void UpdateEffect(const dae::Matrix& WVPmatrix, const dae::Matrix& worldMatrix, const dae::Vector3& cameraPos) override;
 
 	enum class TechniqueMode
 	{

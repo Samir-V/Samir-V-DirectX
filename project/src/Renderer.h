@@ -47,5 +47,6 @@ namespace dae
 		ID3D11RenderTargetView* m_pRenderTargetView;
 
 		std::unique_ptr<Mesh> m_Mesh;
+		std::unique_ptr<Mesh> m_FireMesh;
 	};
 }

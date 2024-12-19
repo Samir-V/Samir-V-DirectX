@@ -1,4 +1,4 @@
-#include "Effect.h"
+#include "MainMeshEffect.h"
 
 #include <d3dcompiler.h>
 #include <iostream>
@@ -6,7 +6,7 @@
 
 #include "Texture.h"
 
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
+MainMeshEffect::MainMeshEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
 	m_pEffect = LoadEffect(pDevice, assetFile);
 
@@ -88,7 +88,7 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	}
 }
 
-Effect::~Effect()
+MainMeshEffect::~MainMeshEffect()
 {
 	m_pGlossinessMapVariable->Release();
 	m_pSpecularMapVariable->Release();
@@ -104,7 +104,7 @@ Effect::~Effect()
 	m_pEffect->Release();
 }
 
-void Effect::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
+void MainMeshEffect::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
 {
 	if (m_pDiffuseMapVariable)
 	{
@@ -117,7 +117,7 @@ void Effect::SetDiffuseMap(const dae::Texture* pDiffuseTexture) const
 	}
 }
 
-void Effect::SetNormalMap(const dae::Texture* pNormalMapTexture) const
+void MainMeshEffect::SetNormalMap(const dae::Texture* pNormalMapTexture) const
 {
 	if (m_pNormalMapVariable)
 	{
@@ -130,7 +130,7 @@ void Effect::SetNormalMap(const dae::Texture* pNormalMapTexture) const
 	}
 }
 
-void Effect::SetSpecularMap(const dae::Texture* pSpecularMapTexture) const
+void MainMeshEffect::SetSpecularMap(const dae::Texture* pSpecularMapTexture) const
 {
 	if (m_pSpecularMapVariable)
 	{
@@ -143,7 +143,7 @@ void Effect::SetSpecularMap(const dae::Texture* pSpecularMapTexture) const
 	}
 }
 
-void Effect::SetGlossinessMap(const dae::Texture* pGlossMapTexture) const
+void MainMeshEffect::SetGlossinessMap(const dae::Texture* pGlossMapTexture) const
 {
 	if (m_pGlossinessMapVariable)
 	{
@@ -156,86 +156,33 @@ void Effect::SetGlossinessMap(const dae::Texture* pGlossMapTexture) const
 	}
 }
 
-// Rewrite to getter, call it in renderer actually
 
-//void Effect::SetCameraPos(const dae::Vector3& cameraPos) const
-//{
-//	if (m_pCameraPositionVariable)
-//	{
-//		const HRESULT result = m_pCameraPositionVariable->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&cameraPos));
-//
-//		if (FAILED(result))
-//		{
-//			std::wcout << L"Setting the camera position variable failed\n";
-//		}
-//	}
-//}
-
-
-
-ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
-{
-	HRESULT result;
-	ID3D10Blob* pErrorBlob{ nullptr };
-	ID3DX11Effect* pEffect;
-
-	DWORD shaderFlags = 0;
-
-#if defined( DEBUG ) || defined( _DEBUG )
-	shaderFlags |= D3DCOMPILE_DEBUG;
-	shaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-	result = D3DX11CompileEffectFromFile(assetFile.c_str(),
-		nullptr,
-		nullptr,
-		shaderFlags,
-		0,
-		pDevice,
-		&pEffect,
-		&pErrorBlob);
-
-	if (FAILED(result))
-	{
-		if (pErrorBlob != nullptr)
-		{
-			const char* pErrors = static_cast<char*>(pErrorBlob->GetBufferPointer());
-
-			std::wstringstream ss;
-			for (unsigned int i = 0; i < pErrorBlob->GetBufferSize(); i++)
-			{
-				ss << pErrors[i];
-			}
-
-			OutputDebugStringW(ss.str().c_str());
-			pErrorBlob->Release();
-			pErrorBlob = nullptr;
-
-			std::wcout << ss.str() << std::endl;
-			return nullptr;
-		}
-	}
-
-	return pEffect;
-}
-
-
-ID3DX11Effect* Effect::GetEffect() const
+ID3DX11Effect* MainMeshEffect::GetEffect() const
 {
 	return m_pEffect;
 }
 
-ID3DX11EffectTechnique* Effect::GetTechnique() const
+ID3DX11EffectTechnique* MainMeshEffect::GetTechnique() const
 {
 	return m_pActiveTechnique;
 }
 
-ID3DX11EffectMatrixVariable* Effect::GetMatrix() const
+ID3DX11EffectMatrixVariable* MainMeshEffect::GetWVPMatrix() const
 {
 	return m_pMatWorldViewProjVariable;
 }
 
-void Effect::CycleTechniques()
+ID3DX11EffectMatrixVariable* MainMeshEffect::GetWorldMatrix() const
+{
+	return m_pMatWorldVariable;
+}
+
+ID3DX11EffectVariable* MainMeshEffect::GetCameraPos() const
+{
+	return m_pCameraPositionVariable;
+}
+
+void MainMeshEffect::CycleTechniques()
 {
 	if (m_TechniqueMode == TechniqueMode::Point)
 	{
@@ -253,6 +200,17 @@ void Effect::CycleTechniques()
 		m_TechniqueMode = TechniqueMode::Point;
 	}
 }
+
+void MainMeshEffect::UpdateEffect(const dae::Matrix& WVPmatrix, const dae::Matrix& worldMatrix, const dae::Vector3& cameraPos)
+{
+	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&WVPmatrix));
+	m_pMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
+	m_pCameraPositionVariable->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&cameraPos));
+}
+
+
+
+	
 
 
 
