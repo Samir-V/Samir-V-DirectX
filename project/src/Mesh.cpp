@@ -144,7 +144,7 @@ namespace dae
 
 		// 6. Generate Mips
 
-		//pDeviceContext->GenerateMips(m_pTexture->GetSRV());
+		pDeviceContext->GenerateMips(m_pDiffuseMap->GetSRV());
 
 		// 7. Draw
 
