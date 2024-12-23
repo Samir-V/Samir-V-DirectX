@@ -16,7 +16,7 @@ MainMeshEffect::MainMeshEffect(ID3D11Device* pDevice, const std::wstring& assetF
 	m_LinearTechnique = m_pEffect->GetTechniqueByName("LinearTechnique");
 	m_AnisotropicTechnique = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
 
-	m_pActiveTechnique = m_pEffect->GetTechniqueByName("PointTechnique");
+	m_pActiveTechnique = m_PointTechnique;
 
 	if (!m_pActiveTechnique->IsValid())
 	{
@@ -97,7 +97,6 @@ MainMeshEffect::~MainMeshEffect()
 	m_pCameraPositionVariable->Release();
 	m_pMatWorldVariable->Release();
 	m_pMatWorldViewProjVariable->Release();
-	//m_pActiveTechnique->Release();
 	m_AnisotropicTechnique->Release();
 	m_LinearTechnique->Release();
 	m_PointTechnique->Release();

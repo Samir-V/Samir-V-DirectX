@@ -29,6 +29,13 @@ private:
 	ID3DX11Effect* m_pEffect;
 	ID3DX11EffectTechnique* m_pActiveTechnique;
 
-	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
+	ID3DX11EffectTechnique* m_PointTechnique;
+	ID3DX11EffectTechnique* m_LinearTechnique;
+	ID3DX11EffectTechnique* m_AnisotropicTechnique;
+
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable;
+
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
+
+	TechniqueMode m_TechniqueMode;
 };

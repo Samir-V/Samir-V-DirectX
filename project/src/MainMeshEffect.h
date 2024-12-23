@@ -32,17 +32,14 @@ public:
 
 	void UpdateEffect(const dae::Matrix& WVPmatrix, const dae::Matrix& worldMatrix, const dae::Vector3& cameraPos) override;
 
-	enum class TechniqueMode
-	{
-		Point,
-		Linear,
-		Anisotropic
-	};
-
 private:
 
 	ID3DX11Effect* m_pEffect;
 	ID3DX11EffectTechnique* m_pActiveTechnique;
+
+	ID3DX11EffectTechnique* m_PointTechnique;
+	ID3DX11EffectTechnique* m_LinearTechnique;
+	ID3DX11EffectTechnique* m_AnisotropicTechnique;
 
 	ID3DX11EffectVariable* m_pCameraPositionVariable;
 
@@ -53,10 +50,6 @@ private:
 	ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable;
 	ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable;
 	ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVariable;
-
-	ID3DX11EffectTechnique* m_PointTechnique;
-	ID3DX11EffectTechnique* m_LinearTechnique;
-	ID3DX11EffectTechnique* m_AnisotropicTechnique;
 
 	TechniqueMode m_TechniqueMode;
 };

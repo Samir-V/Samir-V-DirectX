@@ -269,6 +269,7 @@ namespace dae {
 	void Renderer::CycleTechniques() const
 	{
 		m_Mesh->CycleTechniques();
+		m_FireMesh->CycleTechniques();
 	}
 
 }

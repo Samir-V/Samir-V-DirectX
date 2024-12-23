@@ -43,9 +43,24 @@ DepthStencilState gDepthStencilState
 	StencilEnable = false;
 };
 
-SamplerState samPointDefault
+SamplerState samPoint
 {
     Filter = MIN_MAG_MIP_Point;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+SamplerState samLinear
+{
+    Filter = MIN_MAG_MIP_Linear;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+SamplerState samAnisotropic
+{
+    Filter = ANISOTROPIC;
+    MaxAnisotropy = 16;
     AddressU = Wrap;
     AddressV = Wrap;
 };
@@ -60,25 +75,61 @@ VS_OUTPUT VS(VS_INPUT input)
 	return output;
 }
 
-float4 SampleTexture(VS_OUTPUT input, Texture2D textureToSample) 
+float4 SampleTexture(VS_OUTPUT input, Texture2D textureToSample, SamplerState samplerState) 
 {   
-    return textureToSample.Sample(samPointDefault, input.UV);
+    return textureToSample.Sample(samplerState, input.UV);
 }
 
-float4 PS(VS_OUTPUT input) : SV_TARGET
+float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
-	return SampleTexture(input, gDiffuseMap);
+	return SampleTexture(input, gDiffuseMap, samPoint);
 }
 
-technique11 DefaultTechnique
+float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 {
-	pass P0
-	{
+	return SampleTexture(input, gDiffuseMap, samLinear);
+}
+
+float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
+{
+	return SampleTexture(input, gDiffuseMap, samAnisotropic);
+}
+
+technique11 PointTechnique
+{
+    pass P0
+    {
 		SetRasterizerState(gRasterizerState);
 		SetDepthStencilState(gDepthStencilState, 0);
 		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetVertexShader( CompileShader( vs_5_0, VS() ) );
-		SetGeometryShader( NULL );
-		SetPixelShader( CompileShader( ps_5_0, PS() ) );
-	}
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS_Point()));
+    }
+}
+
+technique11 LinearTechnique
+{
+    pass P0
+    {
+		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
+		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS_Linear()));
+    }
+}
+
+technique11 AnisotropicTechnique
+{
+    pass P0
+    {
+		SetRasterizerState(gRasterizerState);
+		SetDepthStencilState(gDepthStencilState, 0);
+		SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+        SetVertexShader(CompileShader(vs_5_0, VS()));
+        SetGeometryShader(NULL);
+        SetPixelShader(CompileShader(ps_5_0, PS_Anisotropic()));
+    }
 }

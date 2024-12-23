@@ -29,7 +29,6 @@ public:
 	virtual void CycleTechniques() = 0;
 	virtual ID3DX11EffectTechnique* GetTechnique() const = 0;
 
-
 	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	{
 		HRESULT result;
@@ -75,4 +74,12 @@ public:
 
 		return pEffect;
 	}
+
+	// Shared enum class
+	enum class TechniqueMode
+	{
+		Point,
+		Linear,
+		Anisotropic
+	};
 };
