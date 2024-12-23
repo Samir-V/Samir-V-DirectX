@@ -22,6 +22,7 @@ namespace dae
 		void Render() const;
 
 		void CycleTechniques() const;
+		void ToggleRotation();
 
 		float yaw;
 
@@ -32,6 +33,7 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+		bool m_IsRotating{ false };
 
 		std::unique_ptr<Camera> m_Camera;
 

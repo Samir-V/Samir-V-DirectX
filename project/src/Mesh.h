@@ -24,7 +24,7 @@ namespace dae
 
 		void CycleTechniques() const;
 
-		Matrix WorldMatrix{};
+		Matrix WorldMatrix{ Matrix::CreateTranslation(0, 0, 50.0f)};
 
 	private:
 

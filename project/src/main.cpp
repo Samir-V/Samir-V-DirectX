@@ -64,6 +64,12 @@ int main(int argc, char* args[])
 				{
 					pRenderer->CycleTechniques();
 				}
+
+				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
+				{
+					pRenderer->ToggleRotation();
+				}
+
 				break;
 			default: ;
 			}

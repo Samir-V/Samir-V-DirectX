@@ -114,9 +114,9 @@ float4 PS_Point(VS_OUTPUT input) : SV_TARGET
     float angle = max(dot(refResult, invViewDirection), 0.0f);
     float powRes = pow(angle, glossiness);
 
-    float specReflection = 0.5f * (powRes);
+    float specReflection = specularColor * (powRes);
     
-    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
+    return (lambertDiffuse * observedArea) + specReflection;
 }
 
 float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
@@ -144,9 +144,9 @@ float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
     float angle = max(dot(refResult, invViewDirection), 0.0f);
     float powRes = pow(angle, glossiness);
 
-    float specReflection = 0.5f * (powRes);
+    float specReflection = specularColor * (powRes);
     
-    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
+    return (lambertDiffuse * observedArea) + specReflection;
 }
 
 float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
@@ -174,9 +174,9 @@ float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
     float angle = max(dot(refResult, invViewDirection), 0.0f);
     float powRes = pow(angle, glossiness);
 
-    float specReflection = 0.5f * (powRes);
+    float specReflection = specularColor * (powRes);
     
-    return (lambertDiffuse * observedArea) + (specReflection * specularColor);
+    return (lambertDiffuse * observedArea) + specReflection;
 }
 
 technique11 PointTechnique

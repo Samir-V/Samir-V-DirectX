@@ -31,7 +31,7 @@ namespace dae {
 
 		m_Camera = std::make_unique<Camera>();
 
-		m_Camera->Initialize(45.0f, { 0, 0, -50.0f });
+		m_Camera->Initialize(45.0f, { 0, 0, 0.0f });
 
 		m_Camera->aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
@@ -112,12 +112,25 @@ namespace dae {
 	{
 		m_Camera->Update(pTimer);
 
-		yaw = PI_DIV_4 * pTimer->GetElapsed();
-		const Matrix rotationMatrix = Matrix::CreateRotationY(yaw);
-		m_Mesh->WorldMatrix *= rotationMatrix;
-		m_FireMesh->WorldMatrix *= rotationMatrix;
-	}
+		if (m_IsRotating)
+		{
+			yaw = PI_DIV_4 * pTimer->GetElapsed();
 
+			Matrix translationMatrix = Matrix::CreateTranslation(0, 0, -50.0f);
+
+			m_Mesh->WorldMatrix *= translationMatrix;
+			m_FireMesh->WorldMatrix *= translationMatrix;
+
+			const Matrix rotationMatrix = Matrix::CreateRotationY(yaw);
+			m_Mesh->WorldMatrix *= rotationMatrix;
+			m_FireMesh->WorldMatrix *= rotationMatrix;
+
+			translationMatrix.Inverse();
+
+			m_Mesh->WorldMatrix *= translationMatrix;
+			m_FireMesh->WorldMatrix *= translationMatrix;
+		}
+	}
 
 	void Renderer::Render() const
 	{
@@ -271,5 +284,11 @@ namespace dae {
 		m_Mesh->CycleTechniques();
 		m_FireMesh->CycleTechniques();
 	}
+
+	void Renderer::ToggleRotation()
+	{
+		m_IsRotating = !m_IsRotating;
+	}
+
 
 }
