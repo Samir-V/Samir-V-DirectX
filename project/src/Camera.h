@@ -117,19 +117,19 @@ namespace dae
 					origin += forward * movementSpeed * 5 * deltaTime;
 				}
 
-				float rotAngleY = mouseX * rotSpeed * deltaTime;
+				const float rotAngleY = mouseX * rotSpeed * deltaTime;
 				totalYaw += rotAngleY;
 			}
 			else if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) // if right is pressed
 			{
-				float rotAngleX = mouseY * rotSpeed * deltaTime;
+				const float rotAngleX = mouseY * rotSpeed * deltaTime;
 				totalPitch -= rotAngleX;
 
-				float rotAngleY = mouseX * rotSpeed * deltaTime;
+				const float rotAngleY = mouseX * rotSpeed * deltaTime;
 				totalYaw += rotAngleY;
 			}
 
-			Matrix rotMatrix = Matrix::CreateRotation(totalPitch, totalYaw, 0);
+			const Matrix rotMatrix = Matrix::CreateRotation(totalPitch, totalYaw, 0);
 
 			forward = rotMatrix.TransformVector(Vector3::UnitZ);
 			forward.Normalize();

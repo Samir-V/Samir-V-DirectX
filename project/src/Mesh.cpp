@@ -142,8 +142,8 @@ namespace dae
 
 		// 4. Set the matrices and camera pos
 
-		Matrix view = camera->GetViewMatrix();
-		Matrix proj = camera->GetProjectionMatrix();
+		const Matrix view = camera->GetViewMatrix();
+		const Matrix proj = camera->GetProjectionMatrix();
 		const Matrix worldViewProjectionMatrix = WorldMatrix * view * proj;
 
 		m_pEffect->UpdateEffect(worldViewProjectionMatrix, WorldMatrix, camera->origin);
