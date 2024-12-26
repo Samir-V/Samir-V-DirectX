@@ -91,11 +91,11 @@ float4 SampleTexture(VS_OUTPUT input, Texture2D textureToSample, SamplerState sa
 
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
-	float3 binormal = cross(input.Normal, input.Tangent);
+	float3 binormal = normalize(cross(input.Normal, input.Tangent));
 	float3x3 tangentToWorldMatrix = float3x3(
-        input.Tangent,
+        normalize(input.Tangent),
         binormal,
-        input.Normal
+        normalize(input.Normal)
     );
 	
 	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samPoint).rgb);
@@ -110,7 +110,7 @@ float4 PS_Point(VS_OUTPUT input) : SV_TARGET
     float observedArea = max(dot(finalNormal, -LightDirection), 0.0f);
 
     float3 invViewDirection = normalize(gCameraPosition - input.WorldPosition.xyz);
-    float3 refResult = reflect(LightDirection, finalNormal);
+	float3 refResult = reflect(LightDirection, finalNormal);
     float angle = max(dot(refResult, invViewDirection), 0.0f);
     float powRes = pow(angle, glossiness);
 
@@ -121,11 +121,11 @@ float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 
 float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 {
-	float3 binormal = cross(input.Normal, input.Tangent);
+	float3 binormal = normalize(cross(input.Normal, input.Tangent));
 	float3x3 tangentToWorldMatrix = float3x3(
-        input.Tangent,
+        normalize(input.Tangent),
         binormal,
-        input.Normal
+        normalize(input.Normal)
     );
 	
 	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samLinear).rgb);
@@ -151,11 +151,11 @@ float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 
 float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
 {
-	float3 binormal = cross(input.Normal, input.Tangent);
+	float3 binormal = normalize(cross(input.Normal, input.Tangent));
 	float3x3 tangentToWorldMatrix = float3x3(
-        input.Tangent,
+        normalize(input.Tangent),
         binormal,
-        input.Normal
+        normalize(input.Normal)
     );
 	
 	float3 normalMapColour = saturate(SampleTexture(input, gNormalMap, samAnisotropic).rgb);
