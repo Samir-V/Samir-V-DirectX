@@ -47,7 +47,7 @@ DepthStencilState gDepthStencilState
 	DepthEnable = true;
     DepthWriteMask = all;
     DepthFunc = less;
-    StencilEnable = false;
+    StencilEnable = true;
 };
 
 SamplerState samPoint
